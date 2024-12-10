@@ -67,7 +67,6 @@ export async function getProducts(pageNo = 0, pageSize = 10) {
   const res = await axiosInstance.get(
     `/products?pageNo=${pageNo + 1}&pageSize=${pageSize}`
   );
-  console.log("product res", res.data);
   return res.data;
 }
 
@@ -90,7 +89,6 @@ export async function createProduct(product) {
 
 export async function updateProduct(productId, product) {
   const token = getToken();
-  console.log(">>>product request:", product);
   const res = await axiosInstance.put(`/admin/products/${productId}`, product, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -187,7 +185,6 @@ export async function getAllOrders(pageNo = 0, pageSize = 10) {
       },
     }
   );
-  console.log(">>>order res:", res.data);
   return res.data;
 }
 
@@ -199,10 +196,6 @@ export async function getAllOrders(pageNo = 0, pageSize = 10) {
 
 export async function updateOrderStatus(userId, orderId, orderStatus) {
   const token = getToken();
-  console.log(">>userId:", userId);
-  console.log(">>orderId:", orderId);
-  console.log(">>orderStatus:", orderStatus);
-  console.log(">>token:", token);
   const res = await axiosInstance.put(
     `/admin/users/${userId}/orders/${orderId}/orderStatus?orderStatus=${orderStatus}`,
     null,

@@ -6,6 +6,7 @@ import CategoryList from "./pages/categories/CategoryList";
 import ProductList from "./pages/products/ProductList";
 import OrderList from "./pages/orders/OrderList";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardHome from "./pages/dashboard/DashboardHome";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
             </ProtectedRoute>
           }
         >
+          <Route index element={<DashboardHome />} />
           <Route path="users" element={<UserList />} />
           <Route path="categories" element={<CategoryList />} />
           <Route path="products" element={<ProductList />} />

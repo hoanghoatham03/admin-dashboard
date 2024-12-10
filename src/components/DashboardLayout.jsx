@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { removeToken } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 const DashboardLayout = ({ children }) => {
   const location = useLocation();
@@ -69,12 +70,16 @@ const DashboardLayout = ({ children }) => {
                 Orders
               </Link>
             </div>
-            <button
-              onClick={handleLogout}
+            <div className="flex">
+              <button
+                onClick={handleLogout}
               className="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-800"
             >
               Logout
-            </button>
+              <FaSignOutAlt className="ml-2" />
+              </button>
+              
+            </div>
           </div>
         </div>
       </nav>

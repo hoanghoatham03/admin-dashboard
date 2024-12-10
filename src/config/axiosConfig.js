@@ -11,7 +11,6 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     if (config.data instanceof FormData) {
-      console.log("form data", config.data);
       config.headers.set("Content-Type", "multipart/form-data");
     } else {
       config.headers.set("Content-Type", "application/json");

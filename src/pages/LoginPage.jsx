@@ -13,7 +13,6 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await login(email, password);
-      console.log("response", response);
       setToken(response.data.ACCESS_TOKEN);
       setUser(response.data.user);
       navigate("/dashboard");

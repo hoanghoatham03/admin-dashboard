@@ -1,26 +1,33 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import { updateOrderStatus, updatePaymentStatus } from '../../api/api';
+import { useState } from "react";
+import PropTypes from "prop-types";
+import { updateOrderStatus, updatePaymentStatus } from "../../api/api";
 
 const OrderStatusModal = ({ order, onClose, onSuccess }) => {
-  const [orderStatus, setOrderStatus] = useState(order?.orderStatus || 'PENDING');
-  const [paymentStatus, setPaymentStatus] = useState(order?.paymentStatus || 'PENDING');
-  const [error, setError] = useState('');
+  const [orderStatus, setOrderStatus] = useState(
+    order?.orderStatus || "PENDING"
+  );
+  const [paymentStatus, setPaymentStatus] = useState(
+    order?.paymentStatus || "PENDING"
+  );
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (orderStatus !== order.orderStatus) {
-        console.log(">>>order status request:", orderStatus);
         await updateOrderStatus(order.user.userId, order.orderId, orderStatus);
       }
       if (paymentStatus !== order.paymentStatus) {
-        await updatePaymentStatus(order.user.userId, order.orderId, paymentStatus);
+        await updatePaymentStatus(
+          order.user.userId,
+          order.orderId,
+          paymentStatus
+        );
       }
       onSuccess();
     } catch (error) {
-      setError('Failed to update status');
-      console.error('Error updating status:', error);
+      setError("Failed to update status");
+      console.error("Error updating status:", error);
     }
   };
 
@@ -88,4 +95,4 @@ OrderStatusModal.propTypes = {
   onSuccess: PropTypes.func.isRequired,
 };
 
-export default OrderStatusModal; 
+export default OrderStatusModal;
