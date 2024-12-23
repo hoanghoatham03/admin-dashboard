@@ -11,15 +11,16 @@ const CategoryList = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
   const fetchCategories = async () => {
     try {
       const response = await getAllCategories();
-      // Ensure we're setting an array, even if empty
+
       setCategories(Array.isArray(response) ? response : response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      setCategories([]); // Set empty array on error
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -43,11 +44,28 @@ const CategoryList = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         await deleteCategory(categoryId);
-        fetchCategories(); // Refresh the list
+        fetchCategories();
       } catch (error) {
         console.error("Error deleting category:", error);
       }
     }
+  };
+
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
+  };
+
+  const handleSuccess = () => {
+    setShowModal(false);
+    showToast(
+      selectedCategory
+        ? "Category updated successfully!"
+        : "Category added successfully!"
+    );
+    fetchCategories();
   };
 
   if (loading)
@@ -61,6 +79,19 @@ const CategoryList = () => {
 
   return (
     <div className="container mx-auto px-4">
+      {toast.show && (
+        <div className="fixed top-20 right-[calc(42vw)] z-50">
+          <div
+            className={`rounded-lg px-4 py-3 shadow-lg ${
+              toast.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Categories</h2>
         <button
@@ -118,10 +149,7 @@ const CategoryList = () => {
         <CategoryModal
           category={selectedCategory}
           onClose={() => setShowModal(false)}
-          onSuccess={() => {
-            setShowModal(false);
-            fetchCategories();
-          }}
+          onSuccess={handleSuccess}
         />
       )}
     </div>

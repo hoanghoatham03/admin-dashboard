@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getProducts, deleteProduct } from "../../api/api";
+import { getProducts, deleteProduct, getProductById } from "../../api/api";
 import ProductModal from "./ProductModal";
 import { ImSpinner } from "react-icons/im";
 import { IoIosAddCircleOutline } from "react-icons/io";
@@ -14,11 +14,11 @@ const ProductList = () => {
   const [pageNo, setPageNo] = useState(0);
   const [pageSize] = useState(6);
   const [totalPages, setTotalPages] = useState(10);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
   const fetchProducts = async () => {
     try {
       const response = await getProducts(pageNo, pageSize);
-      console.log(">>> response", response);
 
       setProducts(
         Array.isArray(response.data.products) ? response.data.products : []
@@ -32,6 +32,16 @@ const ProductList = () => {
     }
   };
 
+  const fetchProductbyId = async (productId) => {
+    try {
+      const response = await getProductById(productId);
+      setSelectedProduct(response.data);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      setSelectedProduct(null);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
   }, [pageNo, pageSize]);
@@ -41,8 +51,8 @@ const ProductList = () => {
     setShowModal(true);
   };
 
-  const handleEdit = (product) => {
-    setSelectedProduct(product);
+  const handleEdit = async (productId) => {
+    await fetchProductbyId(productId);
     setShowModal(true);
   };
 
@@ -71,6 +81,23 @@ const ProductList = () => {
       : text;
   };
 
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
+  };
+
+  const handleSuccess = () => {
+    setShowModal(false);
+    showToast(
+      selectedProduct
+        ? "Product updated successfully!"
+        : "Product added successfully!"
+    );
+    fetchProducts();
+  };
+
   if (loading)
     return (
       <div className="container mx-auto px-4">
@@ -82,6 +109,19 @@ const ProductList = () => {
 
   return (
     <div className="container mx-auto px-4">
+      {toast.show && (
+        <div className="fixed top-20 right-[calc(42vw)] z-50">
+          <div
+            className={`rounded-lg px-4 py-3 shadow-lg ${
+              toast.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Products</h2>
         <button
@@ -140,7 +180,7 @@ const ProductList = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <button
-                    onClick={() => handleEdit(product)}
+                    onClick={() => handleEdit(product.productId)}
                     className="text-blue-600 hover:text-blue-800 mr-3"
                   >
                     <div className="flex items-center">
@@ -167,10 +207,7 @@ const ProductList = () => {
         <ProductModal
           product={selectedProduct}
           onClose={() => setShowModal(false)}
-          onSuccess={() => {
-            setShowModal(false);
-            fetchProducts();
-          }}
+          onSuccess={handleSuccess}
         />
       )}
       <div className="px-6 py-4 flex items-center justify-between border-t">
