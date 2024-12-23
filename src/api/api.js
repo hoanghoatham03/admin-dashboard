@@ -29,7 +29,7 @@ export async function logout() {
 //         avatar: string;
 //     }
 // ]
-export async function getAllUsers(pageNo = 0, pageSize = 10) {
+export async function getAllUsers(pageNo = 0, pageSize = 7) {
   const token = getToken();
   const res = await axiosInstance.get(
     `/admin/users?pageNo=${pageNo + 1}&pageSize=${pageSize}`,

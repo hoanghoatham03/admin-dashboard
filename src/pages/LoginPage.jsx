@@ -2,15 +2,18 @@ import { useState } from "react";
 import { login } from "../api/api";
 import { setToken, setUser } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { ImSpinner } from "react-icons/im";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await login(email, password);
       setToken(response.data.ACCESS_TOKEN);
@@ -19,6 +22,8 @@ const LoginPage = () => {
     } catch (err) {
       setError("Invalid credentials");
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,7 +67,10 @@ const LoginPage = () => {
             type="submit"
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Sign in
+            {loading ? (
+              <ImSpinner className="animate-spin h-5 w-5 mr-3" />
+            ) : null}
+            Login
           </button>
         </form>
       </div>

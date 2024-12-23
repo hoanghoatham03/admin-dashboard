@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { getAllUsers } from '../../api/api';
+import { useState, useEffect } from "react";
+import { getAllUsers } from "../../api/api";
+import { ImSpinner } from "react-icons/im";
+
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNo, setPageNo] = useState(0);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(7);
   const [totalPages] = useState(2);
 
   useEffect(() => {
@@ -13,9 +15,8 @@ const UserList = () => {
       try {
         const response = await getAllUsers(pageNo, pageSize);
         setUsers(Array.isArray(response.data) ? response.data : []);
-        //setTotalPages(response.totalPages || 0);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
         setUsers([]);
       } finally {
         setLoading(false);
@@ -32,7 +33,14 @@ const UserList = () => {
     setPageNo((prev) => (prev + 1 <= totalPages ? prev + 1 : prev));
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+          <ImSpinner className="animate-spin h-12 w-12 text-blue-600" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="container mx-auto px-4">
@@ -49,14 +57,16 @@ const UserList = () => {
           <tbody>
             {users.map((user) => (
               <tr key={user.userId}>
-                <td className="px-6 py-4 border-b text-center">{user.userId}</td>
+                <td className="px-6 py-4 border-b text-center">
+                  {user.userId}
+                </td>
                 <td className="px-6 py-4 border-b">{user.email}</td>
                 <td className="px-6 py-4 border-b">{user.mobileNumber}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        
+
         {/* Pagination Controls */}
         <div className="px-6 py-4 flex items-center justify-between border-t">
           <div className="flex-1 flex justify-between items-center">
@@ -65,22 +75,36 @@ const UserList = () => {
               disabled={pageNo === 0}
               className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
                 pageNo === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
               Previous
             </button>
-            <span className="text-sm text-gray-700">
-              Page {pageNo+1} of {totalPages}
-            </span>
+
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setPageNo(index)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium ${
+                    pageNo === index
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={handleNextPage}
-              disabled={pageNo+1 >= totalPages}
+              disabled={pageNo + 1 >= totalPages}
               className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                pageNo+1 >= totalPages
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                pageNo + 1 >= totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
               Next

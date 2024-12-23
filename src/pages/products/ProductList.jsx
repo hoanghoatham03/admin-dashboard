@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
-import { getProducts, deleteProduct } from '../../api/api';
-import ProductModal from './ProductModal';
+import { useState, useEffect } from "react";
+import { getProducts, deleteProduct } from "../../api/api";
+import ProductModal from "./ProductModal";
+import { ImSpinner } from "react-icons/im";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { MdModeEditOutline } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -8,16 +12,20 @@ const ProductList = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [pageNo, setPageNo] = useState(0);
-  const [pageSize] = useState(9);
+  const [pageSize] = useState(6);
   const [totalPages, setTotalPages] = useState(10);
 
   const fetchProducts = async () => {
     try {
       const response = await getProducts(pageNo, pageSize);
-      setProducts(Array.isArray(response.data) ? response.data : []);
-      setTotalPages(response.totalPages || 10);
+      console.log(">>> response", response);
+
+      setProducts(
+        Array.isArray(response.data.products) ? response.data.products : []
+      );
+      setTotalPages(response.data.totalPages || 10);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -39,12 +47,12 @@ const ProductList = () => {
   };
 
   const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         await deleteProduct(productId);
         fetchProducts();
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.error("Error deleting product:", error);
       }
     }
   };
@@ -57,7 +65,20 @@ const ProductList = () => {
     setPageNo((prev) => (prev + 1 < totalPages ? prev + 1 : prev));
   };
 
-  if (loading) return <div>Loading...</div>;
+  const trimDescription = (text, maxLength = 50) => {
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
+
+  if (loading)
+    return (
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+          <ImSpinner className="animate-spin h-12 w-12 text-blue-600" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="container mx-auto px-4">
@@ -67,43 +88,80 @@ const ProductList = () => {
           onClick={handleAdd}
           className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
         >
-          Add Product
+          <div className="flex items-center">
+            <span className="mr-1">Add Product</span>
+            <IoIosAddCircleOutline />
+          </div>
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <div key={product.productId} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img
-              src={product.imageUrl}
-              alt={product.productName}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold">{product.productName}</h3>
-              <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-800 font-bold">${product.price}</p>
-                  <p className="text-sm text-gray-600">Stock: {product.stock}</p>
-                </div>
-                <div className="flex gap-2">
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Description
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase text-center">
+                Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase text-center">
+                Stock
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase text-center">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {products.map((product) => (
+              <tr key={product.productId}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.productName}
+                    className="h-12 w-12 object-cover rounded"
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {product.productName}
+                </td>
+                <td className="px-6 py-4">
+                  {trimDescription(product.description)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{product.price}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  {product.stock}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
                   <button
                     onClick={() => handleEdit(product)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 mr-3"
                   >
-                    Edit
+                    <div className="flex items-center">
+                      <span className=" mr-2">Edit</span>
+                      <MdModeEditOutline />
+                    </div>
                   </button>
                   <button
                     onClick={() => handleDelete(product.productId)}
                     className="text-red-600 hover:text-red-800"
                   >
-                    Delete
+                    <div className="flex items-center">
+                      <span className="mr-1">Delete</span>
+                      <MdDelete />
+                    </div>
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       {showModal && (
         <ProductModal
@@ -122,22 +180,34 @@ const ProductList = () => {
             disabled={pageNo === 0}
             className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
               pageNo === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             Previous
           </button>
-          <span className="text-sm text-gray-700">
-            Page {pageNo + 1} of {totalPages}
-          </span>
+          <div className="flex gap-2">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setPageNo(index)}
+                className={`px-3 py-1 rounded-md text-sm font-medium ${
+                  pageNo === index
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleNextPage}
             disabled={pageNo + 1 >= totalPages}
             className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
               pageNo + 1 >= totalPages
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             Next
@@ -148,4 +218,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList; 
+export default ProductList;

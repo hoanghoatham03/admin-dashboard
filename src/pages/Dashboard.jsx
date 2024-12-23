@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import DashboardLayout from '../components/DashboardLayout';
+import { Outlet } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout";
 
 const Dashboard = () => {
   return (
@@ -9,4 +9,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
