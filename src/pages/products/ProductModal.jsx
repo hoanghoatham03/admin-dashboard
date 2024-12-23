@@ -71,8 +71,8 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-10">
+      <div className="bg-white rounded-lg p-5 max-w-2xl w-full mt-5">
         <h2 className="text-2xl font-bold mb-4">
           {product ? 'Edit Product' : 'Add Product'}
         </h2>

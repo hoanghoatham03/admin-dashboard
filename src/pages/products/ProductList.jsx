@@ -177,7 +177,7 @@ const ProductList = () => {
         <div className="flex-1 flex justify-between items-center">
           <button
             onClick={handlePreviousPage}
-            disabled={pageNo === 0}
+            disabled={pageNo === 0 || showModal}
             className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
               pageNo === 0
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -203,7 +203,7 @@ const ProductList = () => {
           </div>
           <button
             onClick={handleNextPage}
-            disabled={pageNo + 1 >= totalPages}
+            disabled={pageNo + 1 >= totalPages || showModal}
             className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
               pageNo + 1 >= totalPages
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
