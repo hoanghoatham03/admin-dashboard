@@ -12,7 +12,7 @@ const OrderList = () => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [pageNo, setPageNo] = useState(0);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(7);
   const [totalPages, setTotalPages] = useState(1);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
@@ -23,8 +23,8 @@ const OrderList = () => {
       // Ensure we're setting an array, even if empty
       console.log(">>> response", response);
 
-      setOrders(Array.isArray(response.data) ? response.data : []);
-      setTotalPages(response.totalPages || 1);
+      setOrders(Array.isArray(response.data.orders) ? response.data.orders : []);
+      setTotalPages(response.data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setOrders([]); // Set empty array on error
@@ -190,9 +190,23 @@ const OrderList = () => {
             >
               Previous
             </button>
-            <span className="text-sm text-gray-700">
-              Page {pageNo + 1} of {totalPages}
-            </span>
+            
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setPageNo(index)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium ${
+                    pageNo === index
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={handleNextPage}
               disabled={pageNo + 1 >= totalPages}

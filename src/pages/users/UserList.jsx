@@ -2,19 +2,19 @@ import { useState, useEffect } from "react";
 import { getAllUsers } from "../../api/api";
 import { ImSpinner } from "react-icons/im";
 
-
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNo, setPageNo] = useState(0);
-  const [pageSize] = useState(7);
-  const [totalPages] = useState(2);
+  const [pageSize] = useState(8);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await getAllUsers(pageNo, pageSize);
-        setUsers(Array.isArray(response.data) ? response.data : []);
+        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+        setTotalPages(response.data.totalPages || 10);
       } catch (error) {
         console.error("Error fetching users:", error);
         setUsers([]);

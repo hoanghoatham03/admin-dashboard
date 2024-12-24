@@ -17,6 +17,16 @@ export async function logout() {
   return res.data;
 }
 
+export async function getStatistics() {
+  const token = getToken();
+  const res = await axiosInstance.get("/admin/statistics", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}
+
 //user
 //response:
 // [
@@ -29,6 +39,7 @@ export async function logout() {
 //         avatar: string;
 //     }
 // ]
+
 export async function getAllUsers(pageNo = 0, pageSize = 7) {
   const token = getToken();
   const res = await axiosInstance.get(
