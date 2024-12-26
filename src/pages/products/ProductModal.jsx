@@ -63,8 +63,9 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
     const previews = files.map(file => URL.createObjectURL(file));
     setImagePreviews(previews);
 
-    setExistingImages([]);
-    setDeletedImageIds([]);
+    if (!product) {
+      setExistingImages([]);
+    }
   };
 
 
@@ -93,9 +94,18 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
         productData.append("images", image);
       });
 
-      
-      if (product && deletedImageIds.length > 0) {
-        productData.append("deletedImageIds", JSON.stringify(deletedImageIds));
+      if (product) {
+        const retainedImageIds = existingImages
+          .filter(img => !deletedImageIds.includes(img.id))
+          .map(img => img.id);
+        
+        if (retainedImageIds.length > 0) {
+          productData.append("retainedImageIds", JSON.stringify(retainedImageIds));
+        }
+        
+        if (deletedImageIds.length > 0) {
+          productData.append("deletedImageIds", JSON.stringify(deletedImageIds));
+        }
       }
 
       if (product) {
@@ -111,6 +121,22 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
       console.error("Error saving product:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteImage = (image) => {
+    if (image.isExisting) {
+      setDeletedImageIds(prev => [...prev, image.id]);
+      setExistingImages(prev => prev.filter(img => img.id !== image.id));
+    } else {
+      const newSelectedImages = [...selectedImages];
+      newSelectedImages.splice(image.index, 1);
+      setSelectedImages(newSelectedImages);
+      
+      const newPreviews = [...imagePreviews];
+      URL.revokeObjectURL(newPreviews[image.index]);
+      newPreviews.splice(image.index, 1);
+      setImagePreviews(newPreviews);
     }
   };
 
@@ -219,6 +245,15 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                       alt={`Preview ${index + 1}`}
                       className="w-full h-32 object-cover rounded"
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(image)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
                   </div>
                 ))}
               </div>
